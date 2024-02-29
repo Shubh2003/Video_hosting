@@ -11,7 +11,7 @@ const generateAccessAndRefreshTokens = async(userId) => {
         const refreshToken = user.generateRefreshToken()
 
         user.refreshToken = refreshToken;
-        await user.save({validateBeforeSave : false});
+        await user.save({validateBeforeSave : false})
 
         return {accessToken,refreshToken};
     } catch (error) {
@@ -79,27 +79,29 @@ const registerUser = asyncHandler( async (req,res) => {
 
 const loginUser = asyncHandler(async (req,res) => {
     const {email,password,username} = req.body;
+    // console.log(email);
 
-    if(!username || !email){
+    if(!username && !email){
         throw new ApiError(400,"username or email is required")
     }
 
    const user = await User.findOne({
-        $or : [{username},{email}]
+        $or : [{username},{email}] 
     })
 
     if(!user){
         throw new ApiError(404,"User does not exist");
     }
-
-   const isPasswordValid = await user.isPasswordCorrect(password);
-
+    // console.log(password);
+   const isPasswordValid = await user.isPasswordCorrect(password)
+//    console.log(isPasswordValid);
    if(!isPasswordValid){
     throw new ApiError(401,"Invalid user credentials");
    }
 
    const {accessToken,refreshToken} = await generateAccessAndRefreshTokens(user._id);
-
+//    console.log(refreshToken);
+//    console.log(accessToken);
    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
    const options = {
@@ -127,7 +129,7 @@ const logoutUser = asyncHandler(async (req,res) => {
         req.body._id,
         {
             $set:{
-                refreshToken:undefined
+                refreshToken:1,
             }
             },
             {

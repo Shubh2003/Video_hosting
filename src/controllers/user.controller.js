@@ -4,6 +4,7 @@ import {User} from "../models/user.model.js"
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 const generateAccessAndRefreshTokens = async(userId) => {
     try {
         const user = await User.findById(userId);
@@ -128,7 +129,7 @@ const logoutUser = asyncHandler(async (req,res) => {
     await User.findByIdAndUpdate(
         req.body._id,
         {
-            $set:{
+            $unset:{
                 refreshToken:1,
             }
             },
@@ -417,15 +418,16 @@ const getWatchHistory = asyncHandler(async(req,res) => {
             }
         },
     ])
-})
-
-return res
+    return res
 .status(200)
 .json(new ApiResponse(
     200,
     user[0].watchHistory,
     "Watch history fetch successfully"
 ))
+})
+
+
 
 export  {
     registerUser,
